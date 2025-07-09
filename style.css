@@ -1,0 +1,241 @@
+/* =================================================================
+   기본 및 레이아웃 (Base & Layout)
+   ================================================================= */
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #0f172a;
+    background-image: url(images/back.png);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: sans-serif;
+}
+
+#game-container {
+    width: 800px;
+    position: relative; /* ✨ z-index의 기준이 되는 스태킹 컨텍스트를 위해 필수! */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+canvas {
+    display: block;
+}
+
+/* =================================================================
+   화면 레이어 관리 (Screen Layers)
+   - z-index를 사용하여 화면 요소들의 층(순서)을 명확히 관리합니다.
+   - 숫자가 클수록 화면 맨 위에 표시됩니다.
+   ================================================================= */
+
+/* 1. 게임 플레이 UI 레이어 (10층) */
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    color: white;
+    /* ✨ 기본적으로 클릭을 통과시켜 캔버스 조준을 방해하지 않도록 설정 */
+    pointer-events: none;
+}
+
+/* 2. 모달 레이어 (100층) - 게임 화면 전체를 덮는 창 */
+#start-screen,
+#game-over {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100; /* ✨ 항상 최상단에 위치하여 다른 요소들을 덮도록 보장 */
+    pointer-events: auto; /* ✨ 이 레이어와 내부 버튼들은 모두 클릭이 가능해야 함 */
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+}
+
+/* =================================================================
+   UI 컴포넌트 (UI Components)
+   ================================================================= */
+
+/* ✨ 클릭이 필요한 UI 요소들은 pointer-events를 auto로 개별 지정 */
+#turn-info,
+#special-ball-selector,
+#restart-button,
+#start-button {
+    pointer-events: auto;
+}
+
+/* 턴 정보 */
+#turn-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* 특수 볼 선택기 */
+#special-ball-selector {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.special-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #facc15;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.2s;
+    pointer-events: auto; /* 선택기 자체도 클릭 가능해야 함 */
+}
+
+.special-btn span {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: #e11d48;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* 시작 화면 */
+#start-screen {
+    background-color: rgba(26, 37, 51, 0.95);
+    font-family: sans-serif;
+}
+
+#start-screen h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #fff, 0 0 20px #4ade80, 0 0 30px #4ade80;
+}
+
+#start-screen p {
+    font-size: 18px;
+    margin-bottom: 40px;
+    color: #cbd5e1;
+}
+
+#start-button {
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #1a2533;
+    background-color: #4ade80;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.5);
+}
+
+#start-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(74, 222, 128, 0.8);
+}
+
+/* 게임오버 화면 */
+#game-over {
+    background-color: rgba(0, 0, 0, 0.7);
+    font-size: 2em;
+}
+
+#game-over.hidden {
+    display: none;
+}
+
+#restart-button {
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 0.8em;
+    cursor: pointer;
+    border: 2px solid white;
+    background-color: #4ade80;
+    color: black;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+/* =================================================================
+   기타 효과 (Effects & Others)
+   ================================================================= */
+
+/* 버튼 흔들림 효과 */
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.special-btn.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* 아이템 툴팁 스타일 */
+.special-btn .tooltip-text {
+    visibility: hidden;
+    width: 180px;
+    background-color: #1e293b;
+    color: #e2e8f0;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 10;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-size: 13px;
+    line-height: 1.5;
+    border: 1px solid #334155;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+
+.special-btn .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #1e293b transparent transparent transparent;
+}
+
+.special-btn:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+.special-btn .tooltip-text strong {
+    color: #facc15;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 5px;
+}

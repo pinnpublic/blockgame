@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Block Breaker Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- ✨ 게임 전체를 감싸는 컨테이너 -->
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui-layer">
+        <div id="turn-info">turn : <span id="turn-count">1</span></div>
+        <!-- ... 이전 코드 생략 ... -->
+        <div id="special-ball-selector">
+            <!-- 폭탄 버튼 -->
+            <button id="bomb-ball-btn" class="special-btn">
+                💣
+                <span id="bomb-ball-count">3</span>
+                <span class="tooltip-text">
+                    <strong>폭탄 볼</strong>
+                    블록에 닿으면 터지며<br>주변 블록에 큰 피해를 줍니다.
+                </span>
+            </button>
+
+            <!-- 마그마 볼 버튼 -->
+            <button id="magma-ball-btn" class="special-btn">
+                🔥
+                <span id="magma-ball-count">3</span>
+                <span class="tooltip-text">
+                    <strong>마그마 볼</strong>
+                    모든 블록을 관통하며<br>경로상의 블록을 파괴합니다.
+                </span>
+            </button>
+
+            <!-- 주사위 아이템 버튼 -->
+            <button id="dice-item-btn" class="special-btn">
+                🎲
+                <span id="dice-item-count">3</span>
+                <span class="tooltip-text">
+                    <strong>주사위</strong>
+                    모든 블록의 체력을<br>무작위로 재분배합니다.
+                </span>
+            </button>
+        </div>
+        <!-- ... 이후 코드 생략 ... -->
+        <div id="game-over" class="hidden">
+            <h2>게임 오버</h2>
+            <p>최종 턴: <span id="final-turn"></span></p>
+            <button id="restart-button">다시 시작</button>
+        </div>
+
+        <!-- ▼▼▼ 여기에 새로운 시작 화면 코드를 붙여넣으세요 ▼▼▼ -->
+        <div id="start-screen">
+            <h1>벽돌깨기: 네온 퓨리</h1>
+            <p>마우스로 조준하고 클릭해서 발사하세요.</p>
+            <button id="start-button">게임 시작</button>
+        </div>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
