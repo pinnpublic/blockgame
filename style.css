@@ -14,7 +14,8 @@ body {
 }
 
 #game-container {
-    width: 800px;
+    width: 100%;
+    max-width: 800px;
     position: relative; /* ✨ z-index의 기준이 되는 스태킹 컨텍스트를 위해 필수! */
     display: flex;
     justify-content: center;

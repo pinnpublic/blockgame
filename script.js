@@ -1713,4 +1713,26 @@ document.addEventListener('DOMContentLoaded', () => {
         selectSpecialBall('DICE');
     });
 
+    // --- [추가] 모바일 터치 이벤트 리스너 ---
+    // PC의 마우스 이벤트와는 별개로, 모바일 환경의 터치 조작을 처리합니다.
+
+    // 터치 시작 시 사운드 재생을 활성화합니다.
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        unlockAudio();
+    }, { passive: false });
+
+    // 터치 후 움직일 때 조준합니다.
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (e.touches.length > 0) {
+            handleAim(e.touches[0]);
+        }
+    }, { passive: false });
+
+    // 터치가 끝나면 발사합니다.
+    canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleShootTrigger();
+    });
 });
