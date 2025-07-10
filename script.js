@@ -781,7 +781,7 @@ function updateBalls() {
                     const ballIndex = balls.indexOf(ball);
 
                     if (ball.type === 'BOMB') {
-                        const radius = 112.5 * (blockWidth + BLOCK_GAP);
+                        const radius = 2.5 * (blockWidth + BLOCK_GAP);
                         const damage = 100;
                         const particleCount = 60;
                         explode(block, radius, damage, particleCount, isGrayscaleStage);
