@@ -23,7 +23,7 @@ LLM Vibe Coding을 테스트하기 위한 간단한 프로젝트입니다.
 ## 🕹️ 게임하러 가기
 
 
-https://blockgame-five.vercel.app/
+<a href="https://blockgame-five.vercel.app/" target="_blank">https://blockgame-five.vercel.app/</a>
 
 <br>
 
