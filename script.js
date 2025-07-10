@@ -1,7 +1,9 @@
 // --- 캔버스 및 UI 요소 가져오기 ---
 let canvas, ctx, turnCountSpan, gameOverDiv, finalTurnSpan, restartButton,
     bombButton, bombCountSpan, magmaButton, magmaCountSpan,
-    diceButton, diceCountSpan, startScreenDiv, startButton;
+    diceButton, diceCountSpan, startScreenDiv, startButton, gameCompleteDiv, playAgainButton, finalTurnCompleteSpan, highScoreSpan;
+
+let highScore = Infinity; // 최고 기록을 저장할 변수
 
 // --- 게임 설정 ---
 // --- 게임 설정 ---
@@ -135,6 +137,7 @@ function startGame() {
         isGameStarted = true;
         if (startScreenDiv) startScreenDiv.style.display = 'none';
         if (gameOverDiv) gameOverDiv.classList.add('hidden');
+        if (gameCompleteDiv) gameCompleteDiv.classList.add('hidden');
 
         init(); // 게임 상태 초기화
 
@@ -352,23 +355,28 @@ function endTurn() {
     // ▼▼▼ 여기가 스테이지를 넘기는 핵심 로직입니다 ▼▼▼
     if (blocks.length === 0) {
         // 스테이지 클리어 시
-        stageIndex++; // 스테이지 인덱스를 여기서만 증가시켜 다음 패턴을 준비합니다.
+        // ✨ [핵심 수정] 모든 패턴을 클리어했는지 확인합니다.
+        if (stageIndex >= patterns.length) {
+            gameComplete(); // 모든 스테이지 클리어 시 게임 완료 화면 표시
+        } else {
+            stageIndex++; // 스테이지 인덱스를 여기서만 증가시켜 다음 패턴을 준비합니다.
 
-        // 다음 스테이지 시작 시, 공의 개수와 속도를 기본값으로 초기화합니다.
-        totalBallCount = BASE_BALL_COUNT;
-        currentTurnSpeed = BALL_SPEED;
+            // 다음 스테이지 시작 시, 공의 개수와 속도를 기본값으로 초기화합니다.
+            totalBallCount = BASE_BALL_COUNT;
+            currentTurnSpeed = BALL_SPEED;
 
-        // 보너스 지급
-        specialBalls.bomb += 2;
-        specialBalls.magma += 1;
-        specialBalls.dice += 2;
-        bombCountSpan.textContent = specialBalls.bomb;
-        magmaCountSpan.textContent = specialBalls.magma;
-        diceCountSpan.textContent = specialBalls.dice;
-        playSound('item');
+            // 보너스 지급
+            specialBalls.bomb += 2;
+            specialBalls.magma += 1;
+            specialBalls.dice += 2;
+            bombCountSpan.textContent = specialBalls.bomb;
+            magmaCountSpan.textContent = specialBalls.magma;
+            diceCountSpan.textContent = specialBalls.dice;
+            playSound('item');
 
-        // 1초 후 다음 패턴 생성
-        setTimeout(generatePattern, 1000);
+            // 1초 후 다음 패턴 생성
+            setTimeout(generatePattern, 1000);
+        }
     } else {
         // 스테이지를 클리어하지 못했을 때 (블록이 남아있을 때)
         // ✨ [핵심 수정] 턴마다 속도를 올리던 기존 로직을 완전히 제거합니다.
@@ -773,7 +781,7 @@ function updateBalls() {
                     const ballIndex = balls.indexOf(ball);
 
                     if (ball.type === 'BOMB') {
-                        const radius = 2.5 * (blockWidth + BLOCK_GAP);
+                        const radius = 112.5 * (blockWidth + BLOCK_GAP);
                         const damage = 100;
                         const particleCount = 60;
                         explode(block, radius, damage, particleCount, isGrayscaleStage);
@@ -849,7 +857,46 @@ function gameOver() {
     isGameStarted = false;
     finalTurnSpan.textContent = turn;
     gameOverDiv.classList.remove('hidden');
-    // startScreenDiv.style.display = 'flex'; // ✨ [핵심] 이 줄을 삭제하거나 주석 처리합니다.
+
+    if (speedIncreaseInterval) {
+        clearInterval(speedIncreaseInterval);
+        speedIncreaseInterval = null;
+    }
+}
+
+function gameComplete() {
+    playSound('clear'); // 게임 클리어 사운드 (예: item 사운드 재활용)
+    isGameOver = true; // 게임 루프 중단
+    isGameStarted = false;
+    gameCompleteDiv.classList.remove('hidden');
+
+    // 현재 턴 수 표시
+    finalTurnCompleteSpan.textContent = turn;
+
+    // 최고 기록 업데이트 및 표시
+    if (turn < highScore) {
+        highScore = turn;
+        localStorage.setItem('blockBreakerHighScore', highScore);
+    }
+    highScoreSpan.textContent = highScore;
+
+    // 게임 상태 변수 초기화
+    blocks = [];
+    balls = [];
+    items = [];
+    particles = [];
+    isShooting = false;
+    isRecalling = false;
+    isBlocksMoving = false;
+    isShooterMoving = false;
+    isClearBonusActive = false;
+    nextShooterX = null;
+    ballsToShoot = 0;
+    shootCooldown = 0;
+    blockMoveProgress = 0;
+    shooterMoveProgress = 0;
+    selectedBallType = 'NORMAL';
+    diceAnimation = null;
 
     if (speedIncreaseInterval) {
         clearInterval(speedIncreaseInterval);
@@ -1666,12 +1713,16 @@ document.addEventListener('DOMContentLoaded', () => {
     diceCountSpan = document.getElementById('dice-item-count');
     startScreenDiv = document.getElementById('start-screen');
     startButton = document.getElementById('start-button');
+    gameCompleteDiv = document.getElementById('game-complete');
+    playAgainButton = document.getElementById('play-again-button');
+    finalTurnCompleteSpan = document.getElementById('final-turn-complete');
+    highScoreSpan = document.getElementById('high-score');
 
     // 2. ✨ [핵심 수정] 게임에 필요한 모든 UI 요소를 철저하게 검증합니다.
     const elementsToVerify = {
         canvas, ctx, turnCountSpan, gameOverDiv, finalTurnSpan, restartButton,
         bombButton, bombCountSpan, magmaButton, magmaCountSpan,
-        diceButton, diceCountSpan, startScreenDiv, startButton
+        diceButton, diceCountSpan, startScreenDiv, startButton, gameCompleteDiv, playAgainButton, finalTurnCompleteSpan, highScoreSpan
     };
 
     for (const key in elementsToVerify) {
@@ -1681,6 +1732,12 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`[치명적 오류] UI 요소 '${key}'를 찾을 수 없습니다. HTML의 id를 다시 확인해주세요.`);
             return;
         }
+    }
+
+    // 최고 기록 불러오기
+    const storedHighScore = localStorage.getItem('blockBreakerHighScore');
+    if (storedHighScore !== null) {
+        highScore = parseInt(storedHighScore, 10);
     }
 
     // 3. 모든 요소가 준비된 것이 확인되었으므로, 이제 이벤트를 연결합니다.
@@ -1693,6 +1750,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     restartButton.addEventListener('click', startGame);
     startButton.addEventListener('click', startGame);
+    playAgainButton.addEventListener('click', startGame);
 
 
     bombButton.addEventListener('click', (e) => {
