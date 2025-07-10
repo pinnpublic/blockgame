@@ -14,6 +14,8 @@ const BLOCK_HEIGHT = 20;
 const BALL_RADIUS = 6;
 const BALL_SPEED = 7.5;
 
+let effectiveGameHeight; // 게임의 논리적 높이를 동적으로 조절
+
 const BASE_BALL_COUNT = 10;
 const ITEM_CHANCE = 0.15;
 const ITEM_BALL_BONUS = 1;
@@ -148,9 +150,19 @@ function startGame() {
 
 function resizeCanvas() {
     const gameContainer = document.getElementById('game-container');
-    const aspectRatio = LOGICAL_WIDTH / LOGICAL_HEIGHT;
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
+
+    // 모바일 환경 (800px 미만)일 때 게임의 논리적 높이를 늘립니다.
+    // PC 환경에서는 LOGICAL_HEIGHT와 동일하게 유지됩니다.
+    effectiveGameHeight = LOGICAL_HEIGHT;
+    if (screenWidth < 800) {
+        // 모바일에서는 블록과 하단 UI 사이의 공간을 더 확보하기 위해 높이를 늘립니다.
+        // 이 값은 실험을 통해 최적화될 수 있습니다.
+        effectiveGameHeight = LOGICAL_HEIGHT * 1.2; // 예를 들어 20% 더 높게
+    }
+
+    const aspectRatio = LOGICAL_WIDTH / effectiveGameHeight;
 
     let newWidth, newHeight;
 
@@ -168,6 +180,9 @@ function resizeCanvas() {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = newWidth * dpr;
     canvas.height = newHeight * dpr;
+
+    // 캔버스 컨텍스트의 스케일링을 업데이트합니다.
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
 
@@ -282,7 +297,7 @@ function init() {
 
     blockWidth = (LOGICAL_WIDTH - (COLS + 1) * BLOCK_GAP) / COLS;
     shooterX = LOGICAL_WIDTH / 2;
-    shooterY = LOGICAL_HEIGHT - 30;
+    shooterY = effectiveGameHeight - 30;
 
     turnCountSpan.textContent = turn;
     gameOverDiv.classList.add('hidden');
@@ -658,7 +673,7 @@ function updateBalls() {
                 playSound('wall');
             }
 
-            if (ball.y > LOGICAL_HEIGHT - ball.radius) {
+            if (ball.y > effectiveGameHeight - ball.radius) {
                 if (nextShooterX === null) {
                     nextShooterX = ball.x;
                     if (nextShooterX < ball.radius) nextShooterX = ball.radius;
@@ -832,7 +847,7 @@ function updateBalls() {
 
 
 function checkGameOver() {
-    const gameOverLine = shooterY - (BLOCK_HEIGHT / 2);
+    const gameOverLine = effectiveGameHeight - (BLOCK_HEIGHT / 2);
     for (const block of blocks) {
         if (block.y + BLOCK_HEIGHT > gameOverLine) {
             gameOver();
@@ -990,7 +1005,7 @@ function updateItems() {
         item.y += item.dy;
 
         // 아이템이 바닥에 닿았을 때
-        if (item.y > LOGICAL_HEIGHT) {
+        if (item.y > effectiveGameHeight) {
             totalBallCount += ITEM_BALL_BONUS; // ✨ 여기서 공 개수를 증가시킵니다.
             playSound('item');                 // ✨ 여기서 아이템 획득 사운드를 재생합니다.
             items.splice(i, 1);                // 아이템을 배열에서 제거합니다.
@@ -1059,11 +1074,11 @@ function playSound(name) {
 
 function draw() {
     // 배경 그라데이션
-    const bgGradient = ctx.createLinearGradient(0, 0, 0, LOGICAL_HEIGHT);
+    const bgGradient = ctx.createLinearGradient(0, 0, 0, effectiveGameHeight);
     bgGradient.addColorStop(0, '#2c3e50');
     bgGradient.addColorStop(1, '#1a2533');
     ctx.fillStyle = bgGradient;
-    ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+    ctx.fillRect(0, 0, LOGICAL_WIDTH, effectiveGameHeight);
 
     // ✨ 원래의 배경 격자 그리기 함수를 호출합니다. (이 부분은 건드리지 않았습니다)
     drawGrid(ctx);
@@ -1073,7 +1088,7 @@ function draw() {
 
     // 하단 바
     ctx.fillStyle = '#334155';
-    ctx.fillRect(0, LOGICAL_HEIGHT - 10, LOGICAL_WIDTH, 10);
+    ctx.fillRect(0, effectiveGameHeight - 10, LOGICAL_WIDTH, 10);
 
     // 조준선
     if (!isGameOver) {
@@ -1181,7 +1196,7 @@ function generateGridBackground() {
     const baseSaturation = 30; // 기본 채도
     const baseLightness = 22; // ✨ 기본 밝기를 이전보다 높여서 어둡지 않게
 
-    const numHorizontalLines = Math.ceil(LOGICAL_HEIGHT / (BLOCK_HEIGHT + BLOCK_GAP));
+    const numHorizontalLines = Math.ceil(effectiveGameHeight / (BLOCK_HEIGHT + BLOCK_GAP));
 
     for (let r = 0; r <= numHorizontalLines; r++) {
         const row = [];
@@ -1223,10 +1238,10 @@ function drawGrid(ctx) {
     for (let i = 0; i <= COLS; i++) {
         const x = BLOCK_GAP / 2 + i * totalColWidth;
         ctx.moveTo(x, 0);
-        ctx.lineTo(x, LOGICAL_HEIGHT);
+        ctx.lineTo(x, effectiveGameHeight);
     }
     // 가로선
-    const numHorizontalLines = Math.ceil(LOGICAL_HEIGHT / totalRowHeight);
+    const numHorizontalLines = Math.ceil(effectiveGameHeight / totalRowHeight);
     for (let i = 0; i <= numHorizontalLines; i++) {
         const y = BLOCK_GAP / 2 + i * totalRowHeight;
         ctx.moveTo(0, y);
@@ -1441,7 +1456,7 @@ function drawGlossyBall(x, y, radius, color) {
 function drawSpeedBar() {
     // 1. 게이지 바 위치 계산
     const barX = LOGICAL_WIDTH - SPEED_BAR_WIDTH - 20;
-    const barY = LOGICAL_HEIGHT - SPEED_BAR_HEIGHT - 40;
+    const barY = effectiveGameHeight - SPEED_BAR_HEIGHT - 40;
 
     // 2. 그라데이션 배경 그리기
     const gradient = ctx.createLinearGradient(barX, barY + SPEED_BAR_HEIGHT, barX, barY);
@@ -1712,6 +1727,9 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation();
         selectSpecialBall('DICE');
     });
+
+    
+
 
     // --- [추가] 모바일 터치 이벤트 리스너 ---
     // PC의 마우스 이벤트와는 별개로, 모바일 환경의 터치 조작을 처리합니다.
