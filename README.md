@@ -21,11 +21,11 @@ https://blockgame-five.vercel.app/
 
 *게임의 멋진 순간들을 여기에 추가해보세요! (예: `screenshot-main.png`)*
 
-|                                        메인 화면                                         |                                        조준 장면                                         |
-|:------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
-| <img width="753" height="623" alt="Image" src="https://github.com/user-attachments/assets/074d0dc7-eb0c-44b0-b3cd-7e302425d47e" /> | <img width="1090" height="773" alt="Image" src="https://github.com/user-attachments/assets/273dcf66-d758-4d32-a605-aea0f1e6b90c" /> |
-|                                     **화려한 플레이**                                      |                                 **특수 능력 (폭탄 / 주사위)**                                 |
-| <img width="863" height="624" alt="Image" src="https://github.com/user-attachments/assets/88356ed5-230f-4660-a6aa-893803f9c2b1" /> | <img width="806" height="602" alt="Image" src="https://github.com/user-attachments/assets/4049aeb6-d82a-4991-94e6-3ce589faadca" /> |
+|                                                               메인 화면                                                                |                                        조준 장면                                         |
+|:----------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
+| <img width="300" height="250" alt="Image" src="https://github.com/user-attachments/assets/074d0dc7-eb0c-44b0-b3cd-7e302425d47e" /> | <img width="300" height="250" alt="Image" src="https://github.com/user-attachments/assets/273dcf66-d758-4d32-a605-aea0f1e6b90c" /> |
+|                                                            **화려한 플레이**                                                             |                                 **특수 능력 (폭탄 / 주사위)**                                 |
+|             <img width="300" height="250" alt="Image" src="https://github.com/user-attachments/assets/88356ed5-230f-4660-a6aa-893803f9c2b1" />             | <img width="300" height="250" alt="Image" src="https://github.com/user-attachments/assets/4049aeb6-d82a-4991-94e6-3ce589faadca" /> |
 
 
 
