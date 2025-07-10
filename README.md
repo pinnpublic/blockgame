@@ -1,4 +1,4 @@
-# 🧱 Neon Breaker 💥
+# 🧱 Block Breader: Neon Fury 💥
 
 LLM Vibe Coding을 테스트하기 위한 간단한 프로젝트입니다.
 
