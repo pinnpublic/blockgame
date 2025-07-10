@@ -14,8 +14,6 @@ const BLOCK_HEIGHT = 20;
 const BALL_RADIUS = 6;
 const BALL_SPEED = 7.5;
 
-let effectiveGameHeight; // 게임의 논리적 높이를 동적으로 조절
-
 const BASE_BALL_COUNT = 10;
 const ITEM_CHANCE = 0.15;
 const ITEM_BALL_BONUS = 1;
@@ -150,25 +148,26 @@ function startGame() {
 
 function resizeCanvas() {
     const gameContainer = document.getElementById('game-container');
+    const aspectRatio = LOGICAL_WIDTH / LOGICAL_HEIGHT;
     const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
 
-    // 모바일 환경 (800px 미만)일 때 게임의 논리적 높이를 늘립니다.
-    effectiveGameHeight = LOGICAL_HEIGHT;
-    if (screenWidth < 800) {
-        effectiveGameHeight = LOGICAL_HEIGHT * 1.2; // 모바일에서 높이 20% 증가
+    let newWidth, newHeight;
+
+    if (screenWidth / screenHeight > aspectRatio) {
+        newHeight = screenHeight;
+        newWidth = newHeight * aspectRatio;
+    } else {
+        newWidth = screenWidth;
+        newHeight = newWidth / aspectRatio;
     }
 
-    // gameContainer의 실제 렌더링된 크기를 가져옵니다.
-    const containerRect = gameContainer.getBoundingClientRect();
-    const containerWidth = containerRect.width;
-    const containerHeight = containerRect.height;
+    gameContainer.style.width = `${newWidth}px`;
+    gameContainer.style.height = `${newHeight}px`;
 
-    // 캔버스의 드로잉 버퍼 크기를 설정합니다 (고해상도 지원).
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = containerWidth * dpr;
-    canvas.height = containerHeight * dpr;
-
-    // 캔버스 컨텍스트의 스케일링은 gameLoop에서 처리합니다.
+    canvas.width = newWidth * dpr;
+    canvas.height = newHeight * dpr;
 }
 
 
@@ -204,16 +203,8 @@ function applyDiceEffect() {
 }
 
 function gameLoop() {
-    // 이전 변환을 모두 초기화합니다.
-    ctx.resetTransform();
-
-    // 캔버스의 실제 드로잉 버퍼 크기와 게임의 논리적 크기를 기반으로 스케일링 팩터를 계산합니다.
-    const scaleX = canvas.width / LOGICAL_WIDTH;
-    const scaleY = canvas.height / effectiveGameHeight;
-    const scale = Math.min(scaleX, scaleY);
-
-    // 계산된 스케일 팩터를 캔버스 컨텍스트에 적용합니다.
-    ctx.scale(scale, scale);
+    const scale = canvas.width / LOGICAL_WIDTH;
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
 
     handleShooting();
     updateBlockMovement();
@@ -291,7 +282,7 @@ function init() {
 
     blockWidth = (LOGICAL_WIDTH - (COLS + 1) * BLOCK_GAP) / COLS;
     shooterX = LOGICAL_WIDTH / 2;
-    shooterY = effectiveGameHeight - 30;
+    shooterY = LOGICAL_HEIGHT - 30;
 
     turnCountSpan.textContent = turn;
     gameOverDiv.classList.add('hidden');
@@ -667,7 +658,7 @@ function updateBalls() {
                 playSound('wall');
             }
 
-            if (ball.y > effectiveGameHeight - ball.radius) {
+            if (ball.y > LOGICAL_HEIGHT - ball.radius) {
                 if (nextShooterX === null) {
                     nextShooterX = ball.x;
                     if (nextShooterX < ball.radius) nextShooterX = ball.radius;
@@ -841,7 +832,7 @@ function updateBalls() {
 
 
 function checkGameOver() {
-    const gameOverLine = effectiveGameHeight - (BLOCK_HEIGHT / 2);
+    const gameOverLine = shooterY - (BLOCK_HEIGHT / 2);
     for (const block of blocks) {
         if (block.y + BLOCK_HEIGHT > gameOverLine) {
             gameOver();
@@ -999,7 +990,7 @@ function updateItems() {
         item.y += item.dy;
 
         // 아이템이 바닥에 닿았을 때
-        if (item.y > effectiveGameHeight) {
+        if (item.y > LOGICAL_HEIGHT) {
             totalBallCount += ITEM_BALL_BONUS; // ✨ 여기서 공 개수를 증가시킵니다.
             playSound('item');                 // ✨ 여기서 아이템 획득 사운드를 재생합니다.
             items.splice(i, 1);                // 아이템을 배열에서 제거합니다.
@@ -1068,11 +1059,11 @@ function playSound(name) {
 
 function draw() {
     // 배경 그라데이션
-    const bgGradient = ctx.createLinearGradient(0, 0, 0, effectiveGameHeight);
+    const bgGradient = ctx.createLinearGradient(0, 0, 0, LOGICAL_HEIGHT);
     bgGradient.addColorStop(0, '#2c3e50');
     bgGradient.addColorStop(1, '#1a2533');
     ctx.fillStyle = bgGradient;
-    ctx.fillRect(0, 0, LOGICAL_WIDTH, effectiveGameHeight);
+    ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
     // ✨ 원래의 배경 격자 그리기 함수를 호출합니다. (이 부분은 건드리지 않았습니다)
     drawGrid(ctx);
@@ -1082,7 +1073,7 @@ function draw() {
 
     // 하단 바
     ctx.fillStyle = '#334155';
-    ctx.fillRect(0, effectiveGameHeight - 10, LOGICAL_WIDTH, 10);
+    ctx.fillRect(0, LOGICAL_HEIGHT - 10, LOGICAL_WIDTH, 10);
 
     // 조준선
     if (!isGameOver) {
@@ -1190,7 +1181,7 @@ function generateGridBackground() {
     const baseSaturation = 30; // 기본 채도
     const baseLightness = 22; // ✨ 기본 밝기를 이전보다 높여서 어둡지 않게
 
-    const numHorizontalLines = Math.ceil(effectiveGameHeight / (BLOCK_HEIGHT + BLOCK_GAP));
+    const numHorizontalLines = Math.ceil(LOGICAL_HEIGHT / (BLOCK_HEIGHT + BLOCK_GAP));
 
     for (let r = 0; r <= numHorizontalLines; r++) {
         const row = [];
@@ -1232,10 +1223,10 @@ function drawGrid(ctx) {
     for (let i = 0; i <= COLS; i++) {
         const x = BLOCK_GAP / 2 + i * totalColWidth;
         ctx.moveTo(x, 0);
-        ctx.lineTo(x, effectiveGameHeight);
+        ctx.lineTo(x, LOGICAL_HEIGHT);
     }
     // 가로선
-    const numHorizontalLines = Math.ceil(effectiveGameHeight / totalRowHeight);
+    const numHorizontalLines = Math.ceil(LOGICAL_HEIGHT / totalRowHeight);
     for (let i = 0; i <= numHorizontalLines; i++) {
         const y = BLOCK_GAP / 2 + i * totalRowHeight;
         ctx.moveTo(0, y);
@@ -1450,7 +1441,7 @@ function drawGlossyBall(x, y, radius, color) {
 function drawSpeedBar() {
     // 1. 게이지 바 위치 계산
     const barX = LOGICAL_WIDTH - SPEED_BAR_WIDTH - 20;
-    const barY = effectiveGameHeight - SPEED_BAR_HEIGHT - 40;
+    const barY = LOGICAL_HEIGHT - SPEED_BAR_HEIGHT - 40;
 
     // 2. 그라데이션 배경 그리기
     const gradient = ctx.createLinearGradient(barX, barY + SPEED_BAR_HEIGHT, barX, barY);
@@ -1722,7 +1713,28 @@ document.addEventListener('DOMContentLoaded', () => {
         selectSpecialBall('DICE');
     });
 
-    
+    // --- [추가] 모바일 화면 스케일링 코드 ---
+    function scaleGameForMobile() {
+        const gameContainer = document.getElementById('game-container');
+        if (!gameContainer) return;
+
+        const screenWidth = window.innerWidth;
+        const gameWidth = 800; // 게임의 기본 너비
+
+        // ✨ [수정] transform-origin을 항상 'center'로 설정하여 중앙 정렬을 유지합니다.
+        gameContainer.style.transformOrigin = 'center';
+
+        if (screenWidth < gameWidth) {
+            const scale = screenWidth / gameWidth;
+            gameContainer.style.transform = `scale(${scale})`;
+        } else {
+            gameContainer.style.transform = 'scale(1)';
+        }
+    }
+
+    // 페이지가 로드될 때와 창 크기가 변경될 때 스케일링 함수를 호출합니다.
+    window.addEventListener('load', scaleGameForMobile);
+    window.addEventListener('resize', scaleGameForMobile);
 
 
     // --- [추가] 모바일 터치 이벤트 리스너 ---
