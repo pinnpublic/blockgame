@@ -295,7 +295,8 @@ function init() {
     magmaButton.style.borderColor = '#facc15';
     diceButton.style.borderColor = '#facc15';
 
-    window.addEventListener('resize', resizeCanvas);
+    // ✨ [리팩토링] 이벤트 리스너 중복 등록을 방지하기 위해 이 코드를 DOMContentLoaded로 이동시켰습니다.
+    // window.addEventListener('resize', resizeCanvas);
 
     generatePattern();
     if (Object.keys(sounds).length === 0) {
@@ -919,64 +920,49 @@ function handleSpecialBlockEffect(block, hitBall, isGrayscaleStage = false) {
             }
             break;
         case 'EXPLOSION':
-            playSound('explosion');
+            // ✨ [리팩토링] 중복 로직을 createExplosion 헬퍼 함수로 대체했습니다.
+            // 기존에는 여기에 폭발 효과와 파티클 생성을 위한 코드가 직접 작성되어 있었습니다.
             const explosionRadius = 2 * (blockWidth + BLOCK_GAP);
             const centerX = block.x + block.width / 2;
             const centerY = block.y + block.height / 2;
-
-            for (let i = blocks.length - 1; i >= 0; i--) {
-                const otherBlock = blocks[i];
-                if (otherBlock === block) continue;
-                const otherCenterX = otherBlock.x + otherBlock.width / 2;
-                const otherCenterY = otherBlock.y + otherBlock.height / 2;
-                const dist = Math.sqrt((centerX - otherCenterX) ** 2 + (centerY - otherCenterY) ** 2);
-                if (dist < explosionRadius) {
-                    // ✨ [핵심 수정] 사운드 억제 플래그(true)를 전달합니다.
-                    applyExplosionDamage(otherBlock, i, 1, true);
-                }
-            }
-            for (let i = 0; i < 20; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 4 + 1;
-
-                let particleColor;
-                if (isGrayscaleStage) {
-                    const grayValue = Math.floor(128 + Math.random() * 128);
-                    particleColor = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
-                } else {
-                    particleColor = `hsl(0, 100%, ${Math.random() * 40 + 60}%)`;
-                }
-
-                particles.push({
-                    x: centerX, y: centerY,
-                    dx: Math.cos(angle) * speed, dy: Math.sin(angle) * speed,
-                    radius: Math.random() * 2 + 1, life: 25,
-                    color: particleColor
-                });
-            }
+            createExplosion(centerX, centerY, explosionRadius, 1, 20, isGrayscaleStage);
             break;
     }
 }
 
 
 function explode(hitBlock, explosionRadius, explosionDamage, particleCount, isGrayscaleStage = false) {
-    playSound('explosion');
+    // ✨ [리팩토링] 중복 로직을 createExplosion 헬퍼 함수로 대체했습니다.
+    // 기존에는 이 함수 내에 폭발 데미지 계산과 파티클 생성 로직이 모두 포함되어 있었습니다.
     const centerX = hitBlock.x + hitBlock.width / 2;
     const centerY = hitBlock.y + hitBlock.height / 2;
+    createExplosion(centerX, centerY, explosionRadius, explosionDamage, particleCount, isGrayscaleStage);
+}
 
+
+
+
+// ✨ [리팩토링] 중복된 폭발 로직을 통합하기 위해 새로 만든 헬퍼 함수입니다.
+// 이 함수는 지정된 위치에 폭발 효과를 생성하고, 주변 블록에 데미지를 주며, 파티클을 생성하는 공통된 역할을 수행합니다.
+function createExplosion(centerX, centerY, radius, damage, particleCount, isGrayscaleStage) {
+    playSound('explosion');
+
+    // 주변 블록에 데미지 적용
     for (let i = blocks.length - 1; i >= 0; i--) {
         const otherBlock = blocks[i];
         const otherCenterX = otherBlock.x + otherBlock.width / 2;
         const otherCenterY = otherBlock.y + otherBlock.height / 2;
         const dist = Math.sqrt((centerX - otherCenterX) ** 2 + (centerY - otherCenterY) ** 2);
-        if (dist < explosionRadius) {
-            // ✨ [핵심 수정] 사운드 억제 플래그(true)를 전달합니다.
-            applyExplosionDamage(otherBlock, i, explosionDamage, true);
+        if (dist < radius) {
+            // 사운드 중복 재생을 막기 위해 suppressMultiplySound 플래그(true)를 전달합니다.
+            applyExplosionDamage(otherBlock, i, damage, true);
         }
     }
+
+    // 파티클 생성
     for (let i = 0; i < particleCount; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 8 + 2;
+        const speed = Math.random() * 8 + 2; // 파티클 속도를 적절히 조절
         const particleColor = isGrayscaleStage
             ? `hsl(0, 0%, ${Math.random() * 50 + 50}%)`
             : `hsl(${Math.random() * 60}, 100%, ${Math.random() * 50 + 50}%)`;
@@ -989,7 +975,6 @@ function explode(hitBlock, explosionRadius, explosionDamage, particleCount, isGr
         });
     }
 }
-
 
 function createItem(x, y) {
     // playSound('item'); // 사운드 재생 로직을 제거합니다.
@@ -1703,6 +1688,8 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('click', handleShootTrigger);
     canvas.addEventListener('dblclick', recallBalls);
     window.addEventListener('keydown', handleSpeedBoost);
+    // ✨ [리팩토링] resize 이벤트 리스너를 이곳으로 이동하여 중복 등록을 방지합니다.
+    window.addEventListener('resize', resizeCanvas);
 
     restartButton.addEventListener('click', startGame);
     startButton.addEventListener('click', startGame);
