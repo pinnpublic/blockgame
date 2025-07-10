@@ -239,21 +239,3 @@ canvas {
     display: block;
     margin-bottom: 5px;
 }
-
-/* --- [추가] 모바일 화면 스케일링을 위한 스타일 --- */
-@media (max-width: 800px) {
-    /* 모바일에서 body가 스크롤되지 않도록 하고, 게임 컨테이너가 중앙에 오도록 합니다. */
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        overflow: hidden;
-    }
-
-    #game-container {
-        /* PC 화면의 800px 너비를 기준으로 스케일링 */
-        transform-origin: center center; /* 중앙을 기준으로 스케일링 */
-        transform: scale(min(1, 100vw / 672px, 100vh / 750px)); /* 화면에 맞춰 축소 *
-    }
-}
