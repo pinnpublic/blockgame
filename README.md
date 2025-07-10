@@ -8,6 +8,7 @@ LLM Vibe Coding을 테스트하기 위한 간단한 프로젝트입니다.
 - 효과음은 라이센스 무료 리소스를 사용했습니다.(https://pixabay.com/ko/sound-effects/)
 - 개발 툴은 IntelliJ를 사용했습니다.
 - 배포 및 운영은 GitHub & Vercel을 사용했습니다.
+- README.md 역시 LLM으로 작성했습니다.
 
 <br>
 
