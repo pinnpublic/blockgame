@@ -151,38 +151,24 @@ function startGame() {
 function resizeCanvas() {
     const gameContainer = document.getElementById('game-container');
     const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
 
     // 모바일 환경 (800px 미만)일 때 게임의 논리적 높이를 늘립니다.
-    // PC 환경에서는 LOGICAL_HEIGHT와 동일하게 유지됩니다.
     effectiveGameHeight = LOGICAL_HEIGHT;
     if (screenWidth < 800) {
-        // 모바일에서는 블록과 하단 UI 사이의 공간을 더 확보하기 위해 높이를 늘립니다.
-        // 이 값은 실험을 통해 최적화될 수 있습니다.
-        effectiveGameHeight = LOGICAL_HEIGHT * 1.2; // 예를 들어 20% 더 높게
+        effectiveGameHeight = LOGICAL_HEIGHT * 1.2; // 모바일에서 높이 20% 증가
     }
 
-    const aspectRatio = LOGICAL_WIDTH / effectiveGameHeight;
+    // gameContainer의 실제 렌더링된 크기를 가져옵니다.
+    const containerRect = gameContainer.getBoundingClientRect();
+    const containerWidth = containerRect.width;
+    const containerHeight = containerRect.height;
 
-    let newWidth, newHeight;
-
-    if (screenWidth / screenHeight > aspectRatio) {
-        newHeight = screenHeight;
-        newWidth = newHeight * aspectRatio;
-    } else {
-        newWidth = screenWidth;
-        newHeight = newWidth / aspectRatio;
-    }
-
-    gameContainer.style.width = `${newWidth}px`;
-    gameContainer.style.height = `${newHeight}px`;
-
+    // 캔버스의 드로잉 버퍼 크기를 설정합니다 (고해상도 지원).
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = newWidth * dpr;
-    canvas.height = newHeight * dpr;
+    canvas.width = containerWidth * dpr;
+    canvas.height = containerHeight * dpr;
 
-    // 캔버스 컨텍스트의 스케일링을 업데이트합니다.
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // 캔버스 컨텍스트의 스케일링은 gameLoop에서 처리합니다.
 }
 
 
@@ -218,8 +204,16 @@ function applyDiceEffect() {
 }
 
 function gameLoop() {
-    const scale = canvas.width / LOGICAL_WIDTH;
-    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    // 이전 변환을 모두 초기화합니다.
+    ctx.resetTransform();
+
+    // 캔버스의 실제 드로잉 버퍼 크기와 게임의 논리적 크기를 기반으로 스케일링 팩터를 계산합니다.
+    const scaleX = canvas.width / LOGICAL_WIDTH;
+    const scaleY = canvas.height / effectiveGameHeight;
+    const scale = Math.min(scaleX, scaleY);
+
+    // 계산된 스케일 팩터를 캔버스 컨텍스트에 적용합니다.
+    ctx.scale(scale, scale);
 
     handleShooting();
     updateBlockMovement();
