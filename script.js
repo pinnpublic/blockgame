@@ -392,7 +392,7 @@ function generatePattern() {
 
     // --- 스테이지별 테마 설정 ---
     const stageThemeIndex = (stageIndex - 1) % 4;
-    let baseHue = 0;
+    let baseHue ;
     let isGrayscale = false;
 
     switch (stageThemeIndex) {
@@ -1452,7 +1452,7 @@ function drawSpeedBar() {
 
     // 3. 현재 속도 비율 계산
     const minSpeedForMapping = BALL_SPEED;
-    const maxSpeedForMapping = MAX_BALL_SPEED;
+    //const maxSpeedForMapping = MAX_BALL_SPEED;
     let speedRatio = (currentTurnSpeed - minSpeedForMapping) / (maxSpeedForMapping - minSpeedForMapping);
     speedRatio = Math.max(0, Math.min(1, speedRatio));
 
@@ -1713,4 +1713,26 @@ document.addEventListener('DOMContentLoaded', () => {
         selectSpecialBall('DICE');
     });
 
+
+    // --- ✨ [모바일 최적화] 터치 이벤트 추가 ---
+    // 사용자가 화면을 터치하고 움직일 때 조준합니다.
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // 화면 스크롤 등 기본 동작 방지
+        if (e.touches.length > 0) {
+            handleAim(e.touches[0]); // 첫 번째 터치 정보를 조준 함수에 넘겨줍니다.
+        }
+    }, { passive: false });
+
+    // 사용자가 화면에서 손을 뗄 때 공을 발사합니다.
+    canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleShootTrigger();
+    });
+
+    // 모바일 브라우저에서는 사용자의 첫 상호작용이 있어야 사운드 재생이 가능하므로,
+    // 첫 터치 시 사운드 컨텍스트의 잠금을 해제합니다.
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        unlockAudio();
+    }, { passive: false });
 });
