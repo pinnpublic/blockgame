@@ -23,7 +23,7 @@ LLM Vibe Coding을 테스트하기 위한 간단한 프로젝트입니다.
 ## 🕹️ 게임하러 가기
 
 
-<a href="https://blockgame-five.vercel.app/" target="_blank">https://blockgame-five.vercel.app/</a>
+<a href="https://blockgame-five.vercel.app/" target="_blank">blockgame-five.vercel.app</a>
 
 <br>
 
@@ -31,9 +31,9 @@ LLM Vibe Coding을 테스트하기 위한 간단한 프로젝트입니다.
 
 |                                                               메인 화면                                                                |                                        조준 장면                                         |
 |:----------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
-| <img width="300" height="250" alt="Image" src="https://github.com/user-attachments/assets/074d0dc7-eb0c-44b0-b3cd-7e302425d47e" /> | <img width="300" height="250" alt="Image" src="https://github.com/user-attachments/assets/273dcf66-d758-4d32-a605-aea0f1e6b90c" /> |
+| <img width="800" height="600" alt="Image" src="https://github.com/user-attachments/assets/acadf76a-a89f-4839-8fba-3d40e28c8bb6" /> | <img width="800" height="600" alt="Image" src="https://github.com/user-attachments/assets/0964bfc9-9bb2-459b-a50a-aa5046e84eba" /> |
 |                                                            **화려한 플레이**                                                             |                                 **특수 능력 (폭탄 / 주사위)**                                 |
-|             <img width="300" height="250" alt="Image" src="https://github.com/user-attachments/assets/88356ed5-230f-4660-a6aa-893803f9c2b1" />             | <img width="300" height="250" alt="Image" src="https://github.com/user-attachments/assets/4049aeb6-d82a-4991-94e6-3ce589faadca" /> |
+| <img width="800" height="600" alt="Image" src="https://github.com/user-attachments/assets/6cfc437d-6e3e-4ea7-9aa8-ec8645ceb073" /> | <img width="800" height="600" alt="Image" src="https://github.com/user-attachments/assets/81aff65e-301b-4516-9199-834bb4123409" /> |
 
 
 
