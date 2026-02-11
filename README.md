@@ -1,6 +1,6 @@
 # 🧱 Block Breader: Neon Fury 💥
 
-- Gemini Pro 2.5를 사용한 Vibe Coding 프로젝트입니다.
+- Gemini Pro 2.5를 사용한 프로젝트입니다.
 - 기획 및 전체 구성과 일부 알고리즘 수정에만 수작업을 진행했고, 나머지 모든 작업은 LLM 프롬프트로 진행했습니다.
 - 배경 이미지, 아이템 이미지, 게임내 문구 등 각종 리소스도 LLM 프롬프트로 생성했습니다.
 - 효과음은 라이센스 무료 리소스를 사용했습니다.(https://pixabay.com/ko/sound-effects/)
